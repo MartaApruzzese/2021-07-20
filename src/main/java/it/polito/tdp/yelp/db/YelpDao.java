@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import it.polito.tdp.yelp.model.Business;
 import it.polito.tdp.yelp.model.Review;
@@ -111,5 +112,63 @@ public class YelpDao {
 		}
 	}
 	
+	public List<User> getUserConNRecensioni(int n, Map<String, User> idMap){
+		String sql="SELECT s.user_id as id "
+				+ "FROM users s, reviews r "
+				+ "WHERE s.user_id=r.user_id "
+				+ "GROUP BY s.user_id "
+				+ "HAVING COUNT(*)>= ? ";
+		List<User> result = new ArrayList<User>();
+		Connection conn = DBConnect.getConnection();
+
+		try {
+			PreparedStatement st = conn.prepareStatement(sql);
+			st.setInt(1, n);
+			ResultSet res = st.executeQuery();
+			while (res.next()) {
+
+				User u= idMap.get(res.getString("id"));
+				result.add(u);
+			}
+			res.close();
+			st.close();
+			conn.close();
+			return result;
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+		
+	}
 	
+	public int getPesoArco(User u1, User u2, int anno) {
+		String sql="SELECT COUNT(*) AS peso "
+				+ "FROM reviews r1, reviews r2 "
+				+ "WHERE r1.user_id= ? "
+				+ "AND r2.user_id= ? "
+				+ "AND r1.business_id= r2.business_id "
+				+ "AND YEAR(r1.review_date)= YEAR(r2.review_date) "
+				+ "AND YEAR(r1.review_date) = ? ";
+		Connection conn = DBConnect.getConnection();
+
+		try {
+			PreparedStatement st = conn.prepareStatement(sql);
+			st.setString(1, u1.getUserId());
+			st.setString(2, u2.getUserId());
+			st.setInt(3, anno);
+			ResultSet res = st.executeQuery();
+			res.first();
+			int peso=res.getInt("peso");
+			
+			res.close();
+			st.close();
+			conn.close();
+			return peso;
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return -1;
+		}
+	}
 }
