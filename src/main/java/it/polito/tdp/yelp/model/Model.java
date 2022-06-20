@@ -16,6 +16,11 @@ public class Model {
 	private List<User> vertici;
 	private int max;
 	
+	// risultati del simulatore
+	private int numeroGiorni ;
+	private List<Giornalista> giornalisti ;
+		
+	
 	public Model() {
 		this.dao= new YelpDao();
 		
@@ -79,5 +84,26 @@ public class Model {
 	
 	public int getMax() {
 		return this.max;
+	}
+	
+	
+	public void simula(int intervistatori, int utenti) {
+		Simulatore sim = new Simulatore(this.grafo);
+		sim.init(intervistatori, utenti);
+		sim.run();
+		this.giornalisti = sim.getGiornalisti();
+		this.numeroGiorni = sim.getNumGiorni();
+	}
+	
+	public List<User> getUsers() {
+		return this.vertici;
+	}
+
+	public int getNumeroGiorni() {
+		return numeroGiorni;
+	}
+
+	public List<Giornalista> getGiornalisti() {
+		return giornalisti;
 	}
 }

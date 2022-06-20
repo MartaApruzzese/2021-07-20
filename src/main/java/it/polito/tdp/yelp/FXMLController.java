@@ -8,6 +8,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import it.polito.tdp.yelp.model.Giornalista;
 import it.polito.tdp.yelp.model.Model;
 import it.polito.tdp.yelp.model.User;
 import javafx.event.ActionEvent;
@@ -80,6 +81,10 @@ public class FXMLController {
     void doUtenteSimile(ActionEvent event) {
     	txtResult.clear();
     	User u= cmbUtente.getValue();
+    	if(u==null) {
+    		txtResult.setText("Selezionare un utente dopo aver creato un grafo.");
+    		return;
+    	}
     	List<User> result= this.model.calcolaSimile(u);
     	txtResult.setText("Utenti più simili a "+u.getName());
     	for(User ut: result) {
@@ -91,6 +96,32 @@ public class FXMLController {
     @FXML
     void doSimula(ActionEvent event) {
 
+    	try {
+    		int x1 = Integer.parseInt(txtX1.getText());
+    		int x2 = Integer.parseInt(txtX2.getText());
+    		
+    		if(x2>model.getUsers().size()) {
+    			txtResult.appendText("x2 deve essere minore o uguale al numero di utenti\n");
+    			return;
+    		}
+
+    		if(x1>x2) {
+    			txtResult.appendText("x1 deve essere minore o uguale a x2\n");
+    			return;
+    		}
+
+    		model.simula(x1, x2);
+    		
+    		txtResult.appendText("Numero di giorni: "+model.getNumeroGiorni()+"\n");
+
+    		for(Giornalista g: model.getGiornalisti()) {
+    			txtResult.appendText("Giornalista "+ g.getId()+ ": "+ g.getNumIntevistati()+ " intervistati\n");
+    		}
+    		
+    		
+    	} catch(NumberFormatException ex) {
+    		txtResult.appendText("Errore: x1 ed x2 devono essere valori interi\n");
+    	}
     }
     
 
